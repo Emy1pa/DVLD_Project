@@ -49,6 +49,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="frmAddNewPerson.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmAddNewPerson.Designer.cs">
+      <DependentUpon>frmAddNewPerson.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmMain.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -63,6 +69,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="frmAddNewPerson.resx">
+      <DependentUpon>frmAddNewPerson.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmMain.resx">
       <DependentUpon>frmMain.cs</DependentUpon>
     </EmbeddedResource>
@@ -94,13 +103,19 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DVLD_BusinessLayer\DVLD_BusinessLayer.csproj">
-      <Project>{51e21b8a-54d8-4c69-abd0-6f4e3b4be947}</Project>
-      <Name>DVLD_BusinessLayer</Name>
-    </ProjectReference>
+    <None Include="Resources\People 64.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\People 64.png" />
+    <None Include="Resources\Male 512.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Female 512.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="DVLD_BusinessLayer\DVLD_BusinessLayer.csproj">
+      <Project>{d0f3cd92-0fe9-4ecf-bb4d-e84c28647f82}</Project>
+      <Name>DVLD_BusinessLayer</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
