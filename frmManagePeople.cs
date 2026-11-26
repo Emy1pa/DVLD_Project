@@ -39,7 +39,7 @@ namespace DVLD_PresentationLayer
 
         private void icnAddNewPerson_Click(object sender, EventArgs e)
         {
-            Form AddNewPerson = new frmAddNewPerson();
+            Form AddNewPerson = new frmAddNewPerson(-1);
             AddNewPerson.ShowDialog();
         }
 
@@ -47,5 +47,7 @@ namespace DVLD_PresentationLayer
         {
             this.Close();
         }
+
+       
     }
 }

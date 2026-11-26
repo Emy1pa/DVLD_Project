@@ -47,11 +47,6 @@ namespace DVLD_PresentationLayer
             }
 
         }
-        public frmAddNewPerson()
-        {
-            InitializeComponent();
-        }
-
        
 
         private void _LoadData()
@@ -63,6 +58,7 @@ namespace DVLD_PresentationLayer
             {
                 lblMode.Text = "Add New Person";
                 _Person = new clsPerson();
+                lnkRemoveImg.Visible = (!string.IsNullOrEmpty(_Person.ImagePath));
                 return;
             }
 
@@ -70,24 +66,28 @@ namespace DVLD_PresentationLayer
 
             if (_Person == null)
             {
-                MessageBox.Show("This form will be closed because No Contact with ID = " + _PersonID);
+                MessageBox.Show("This form will be closed because No Person with ID = " + _PersonID);
                 this.Close();
                 return;
             }
 
             lblMode.Text = "Edit Person ID = " + _PersonID;
+
             lblPersonID.Text = _PersonID.ToString();
             txtFirstName.Text = _Person.FirstName;
             txtSecondName.Text = _Person.SecondName;
+            txtNationalNo.Text = _Person.NationalNo;
+            txtNationalNo.Enabled = _Mode == enMode.AddNew;
 
             if (_Person.ThirdName == null)
                 txtThirdName.Text = "";
             else txtThirdName.Text = _Person.ThirdName;
 
             txtLastName.Text = _Person.LastName;
-            txtNationalNo.Text = _Person.NationalNo;
             dtpDateOfBirth.Value = _Person.DateOfBirth;
+
             rbMale.Checked = _Person.Gendor == 0;
+            rbFemale.Checked = _Person.Gendor == 1;
             txtPhone.Text = _Person.Phone;
 
             if (_Person.Email == null)
@@ -96,13 +96,17 @@ namespace DVLD_PresentationLayer
 
             txtAddress.Text = _Person.Address;
 
-            if (_Person.ImagePath != "")
+            if (!string.IsNullOrEmpty(_Person.ImagePath))
             {
-                pictureBox1.Load(_Person.ImagePath);
+                pctPerson.Load(_Person.ImagePath);
             }
 
+            lnkRemoveImg.Visible = (!string.IsNullOrEmpty(_Person.ImagePath));
+            //lnkRemoveImg.Visible = (_Person.ImagePath != "");
+
+
             //this will select the country in the combobox.
-            cbCountry.SelectedIndex = cbCountry.FindString(clsCountry.Find(_Person.ID).CountryName);
+            cbCountry.SelectedIndex = cbCountry.FindString(clsCountry.Find(_Person.NationalityCountryID).CountryName);
         }
 
         public void DateOfBirthMaxDate()
@@ -112,9 +116,9 @@ namespace DVLD_PresentationLayer
 
         private void Gendor_CheckedChanged(object sender, EventArgs e) {
 
-            if (rbMale.Checked) {
+            if (rbMale.Checked && pctPerson.ImageLocation == null) {
                 pctPerson.Image = Resources.Male_512;
-            } else if (rbFemale.Checked)
+            } else if (rbFemale.Checked && pctPerson.ImageLocation == null)
             {
                 pctPerson.Image = Resources.Female_512;
             }
@@ -179,7 +183,14 @@ namespace DVLD_PresentationLayer
             {
                 e.Cancel = true;
                 errorProvider1.SetError(txtNationalNo, "National Number is used for another person.");
-            } else
+            }
+            else if (string.IsNullOrEmpty(txtNationalNo.Text))
+            {
+                e.Cancel = true;
+                errorProvider1.SetError(txtNationalNo, "National Number is required.");
+
+            }
+            else
             {
                 e.Cancel = false;
                 errorProvider1.SetError(txtNationalNo, null);
@@ -218,7 +229,48 @@ namespace DVLD_PresentationLayer
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            
+            if (!this.ValidateChildren())
+            {
+                MessageBox.Show(
+                    "Some fields are not valid. Hover over the red icons to see the error.", // message
+                    "Validation Error",          
+                    MessageBoxButtons.OK,       
+                    MessageBoxIcon.Error        
+                ); return;
+            }
+
+            int CountryID = clsCountry.Find(cbCountry.Text).ID;
+
+            _Person.FirstName = txtFirstName.Text;
+            _Person.SecondName = txtSecondName.Text;
+            _Person.ThirdName = txtThirdName.Text;
+            _Person.LastName = txtLastName.Text;
+            _Person.Phone = txtPhone.Text;
+            _Person.NationalNo = txtNationalNo.Text;
+            _Person.NationalityCountryID = CountryID;
+            _Person.DateOfBirth = dtpDateOfBirth.Value;
+            _Person.Email = txtEmail.Text;
+            _Person.Address = txtAddress.Text;
+            _Person.Gendor = (byte)(rbMale.Checked ? 0 : 1);
+
+            if (pctPerson.ImageLocation != null)
+                _Person.ImagePath = pctPerson.ImageLocation;
+            else
+                _Person.ImagePath = "";
+
+            if (_Person.Save())
+            {
+                MessageBox.Show("Data Saved Successfully.");
+                _Mode = enMode.Update;
+                lblMode.Text = "Edit Person ID = " + _Person.ID;
+                lblPersonID.Text = _Person.ID.ToString();
+            }
+            else
+                MessageBox.Show("Error: Data Is not Saved Successfully.");
+
+
+           
+
         }
 
         private void txtEmail_Validating(object sender, CancelEventArgs e)
@@ -237,6 +289,36 @@ namespace DVLD_PresentationLayer
                 e.Cancel = true;
                 errorProvider1.SetError(txtEmail, "Invalid Email Address Format");
             }
+        }
+
+        private void btnAddPersonClose_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void lnkSetImage_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            openFileDialog1.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.gif;*.bmp";
+            openFileDialog1.FilterIndex = 1;
+            openFileDialog1.RestoreDirectory = true;
+
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                // Process the selected file
+                string selectedFilePath = openFileDialog1.FileName;
+                //MessageBox.Show("Selected Image is:" + selectedFilePath);
+
+                pctPerson.Load(selectedFilePath);
+                lnkRemoveImg.Visible = true;
+                // ...
+            }
+        }
+
+        private void lnkRemoveImg_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            pctPerson.ImageLocation = null;
+            lnkRemoveImg.Visible = false;
+            pctPerson.Image = Resources.Male_512;
         }
     }
 }
